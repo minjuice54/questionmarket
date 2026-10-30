@@ -2,263 +2,282 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#fff9ec">
-<title>질문? 아나, 받아라! · 예비 앱</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fffdf8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>질문? 아나, 받아라! · 부스</title>
 <style>
   :root {
     --ink: #202534; --muted: #718096; --line: #e5e8ee; --paper: #fffdf8;
-    --blue: #2563c7; --blue-dark: #19499b; --yellow: #ffd84d; --red: #ef5f62; --green: #168b68;
+    --blue: #2563c7; --blue-dark: #19499b; --yellow: #ffd84d; --red: #ef5f62; --red-dark: #bf4749;
+    --green: #168b68; --green-dark: #0b654c;
     --soft-blue: #edf4ff; --soft-yellow: #fff6d6; --soft-green: #eaf8f0; --soft-red: #fff0ed;
     --title-red: #ed292d; --title-blue: #1749b4;
+    --gap: clamp(8px, 1.4vh, 14px);
   }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   [hidden] { display: none !important; }
-  html, body { margin: 0; background: var(--paper); color: var(--ink);
+  html, body { margin: 0; height: 100%; background: var(--paper); color: var(--ink);
     font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; }
-  button, input { font: inherit; }
-  button { cursor: pointer; }
-  button:disabled { opacity: .55; cursor: not-allowed; pointer-events: none; }
-  .jua { font-family: 'Jua', 'Noto Sans KR', 'Malgun Gothic', sans-serif; font-weight: 400; }
+  body { overflow: hidden; overscroll-behavior: none; }
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+  button:disabled { opacity: .5; cursor: not-allowed; pointer-events: none; }
+  .jua { font-family: 'Jua', 'Noto Sans KR', sans-serif; font-weight: 400; }
 
-  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px;
-    padding: 10px clamp(16px, 4vw, 40px); border-bottom: 1px solid #e8e3d8; background: rgba(255,253,248,.96);
-    position: sticky; top: 0; z-index: 5; }
-  .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .brand-mark { position: relative; width: 38px; height: 38px; border: 3px solid #253459; background: var(--yellow);
-    border-radius: 48% 52% 48% 43%; display: grid; place-items: center; transform: rotate(-5deg); box-shadow: 2px 3px 0 #253459; flex: 0 0 auto; }
-  .brand-mark span { font-family: 'Jua', sans-serif; font-size: 25px; line-height: 1; transform: rotate(5deg); }
-  .brand strong { font-family: 'Jua', sans-serif; font-weight: 400; font-size: 20px; white-space: nowrap; }
-  .brand small { color: var(--blue); font-weight: 800; font-size: 13px; margin-left: 4px; white-space: nowrap; }
-  .session { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; }
-  .chip { background: var(--soft-blue); color: #1a4a9c; border-radius: 999px; padding: 5px 11px; white-space: nowrap; max-width: 52vw; overflow: hidden; text-overflow: ellipsis; }
-  .linkish { white-space: nowrap; border: 0; background: none; color: var(--muted); text-decoration: underline; font-weight: 700; font-size: 13px; padding: 4px; }
+  .app { height: 100vh; height: 100dvh; display: flex; flex-direction: column;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+
+  /* 위쪽 제목 줄 */
+  .topbar { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; height: clamp(48px, 7.5vh, 62px);
+    padding: 0 clamp(12px, 2vw, 22px); border-bottom: 1px solid #ece6d6; background: var(--soft-yellow); position: relative; overflow: hidden; }
+  .brand-mark { width: 34px; height: 34px; border: 3px solid #253459; background: var(--yellow); border-radius: 48% 52% 48% 43%;
+    display: grid; place-items: center; transform: rotate(-5deg); box-shadow: 2px 3px 0 #253459; flex: 0 0 auto; }
+  .brand-mark span { font-family: 'Jua', sans-serif; font-size: 22px; line-height: 1; transform: rotate(5deg); }
+  .title { font-family: 'Jua', 'Noto Sans KR', sans-serif; font-size: clamp(20px, 3.4vh, 28px); color: var(--title-red); white-space: nowrap; text-shadow: 1px 2px 0 #fff; }
+  .title b { color: var(--title-blue); font-weight: 400; }
+  .booth-chip { margin-left: 6px; background: #fff; color: #1a4a9c; border: 1px solid #d6e3f8; border-radius: 999px; padding: 4px 12px;
+    font-weight: 900; font-size: 14px; white-space: nowrap; max-width: 28vw; overflow: hidden; text-overflow: ellipsis; }
+  .spacer { flex: 1; }
+  .topbar .mascot { height: calc(100% - 6px); width: auto; align-self: center; object-fit: contain; }
+  .linkish { border: 0; background: none; color: var(--muted); text-decoration: underline; font-weight: 700; font-size: 13px; padding: 6px; white-space: nowrap; }
   .linkish.danger { color: #bd3e3c; }
 
-  main { width: min(100%, 1180px); margin: 0 auto; padding: 18px clamp(14px, 3vw, 32px) 40px; }
+  main { flex: 1 1 auto; min-height: 0; padding: var(--gap) clamp(10px, 1.6vw, 18px); }
+  .view { height: 100%; }
+  .panel { background: #fff; border-radius: 20px; border: 1px solid #eef1f6; box-shadow: 0 3px 0 #dfe6f2; padding: clamp(10px, 1.6vh, 16px);
+    min-height: 0; display: flex; flex-direction: column; gap: var(--gap); overflow: hidden; }
+  .panel-title { margin: 0; font-family: 'Jua', 'Noto Sans KR', sans-serif; font-weight: 400; font-size: clamp(17px, 2.6vh, 22px); display: flex; align-items: center; gap: 8px; }
+  .panel-title small { font-family: 'Noto Sans KR', sans-serif; font-weight: 800; color: var(--blue); font-size: 12px; }
 
-  .intro { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px;
-    background: var(--soft-yellow); border-radius: 24px; padding: 20px clamp(18px, 3vw, 32px) 0; margin-bottom: 16px; overflow: hidden; min-height: 130px; }
-  .intro-copy { padding-bottom: 18px; min-width: 0; }
-  .intro .eyebrow { margin: 0 0 6px; color: var(--blue); font-weight: 800; font-size: 12px; }
-  .intro h1 { margin: 0; font-family: 'Jua', sans-serif; font-weight: 400; color: var(--title-red);
-    font-size: clamp(30px, 5vw, 52px); line-height: 1.05; text-shadow: 2px 3px 0 #fff; }
-  .intro h1 b { color: var(--title-blue); font-weight: 400; white-space: nowrap; }
-  .kiosk .intro h1 { font-size: clamp(30px, 4.6vw, 46px); }
-  .intro .subtitle { margin: 7px 0 0; color: #334262; font-size: 14px; font-weight: 800; }
-  .intro .mascot { width: clamp(140px, 22vw, 240px); height: auto; align-self: flex-end; display: block; margin-bottom: -6px; }
+  /* 거래 부스: 3단 */
+  .booth-grid { height: 100%; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, .82fr); gap: var(--gap); }
 
-  .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
-  .panel { background: #fff; border-radius: 24px; box-shadow: 0 4px 0 #dfe6f2; border: 1px solid #eef1f6; padding: clamp(16px, 2vw, 22px); }
-  .panel + .panel { margin-top: 0; }
-  .wide { grid-column: 1 / -1; }
-  .step { display: inline-flex; align-items: center; gap: 6px; font-weight: 900; color: var(--blue); font-size: 13px; margin-bottom: 4px; }
-  .panel h2 { margin: 0 0 12px; font-family: 'Jua', sans-serif; font-weight: 400; font-size: clamp(20px, 2.2vw, 26px); }
-
-  .reader { position: relative; width: 100%; aspect-ratio: 4 / 3; max-height: 46vh; background: #12172a; border-radius: 16px; overflow: hidden; margin-bottom: 10px; }
-  .reader video { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .reader .guide { position: absolute; inset: 18% 22%; border: 3px dashed rgba(255,216,77,.95); border-radius: 18px; pointer-events: none; }
-  .reader .hint { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; color: #fff; font-weight: 800; font-size: 14px; text-shadow: 0 1px 2px #000; }
+  .reader { position: relative; flex: 1 1 auto; min-height: 120px; background: #12172a; border-radius: 14px; overflow: hidden; }
+  .reader video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .reader video.mirror { transform: scaleX(-1); }
+  .reader .guide { position: absolute; left: 50%; top: 50%; width: min(60%, 46vh); aspect-ratio: 1; transform: translate(-50%, -50%);
+    border: 3px dashed rgba(255,216,77,.95); border-radius: 18px; pointer-events: none; }
+  .reader .idle { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: #dfe6f7; font-weight: 800; font-size: 15px; padding: 12px; }
+  .reader .hint { position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; color: #fff; font-weight: 800; font-size: 13px; text-shadow: 0 1px 3px #000; }
   .row { display: flex; gap: 8px; }
   .row > * { flex: 1; }
-  .btn { border: 1px solid #d6dce6; background: #fff; color: var(--ink); border-radius: 12px; padding: 12px 14px; font-weight: 900; min-height: 52px; font-size: 16px; }
-  .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 3px 0 var(--blue-dark); }
+  .btn { border: 1px solid #d6dce6; background: #fff; border-radius: 12px; padding: 8px 10px; font-weight: 900; font-size: 15px; min-height: clamp(40px, 6vh, 50px); }
   .btn.yellow { background: var(--yellow); border-color: #e3b823; box-shadow: 0 3px 0 #c99e14; }
-  .btn.big { width: 100%; min-height: 64px; font-size: 21px; margin-top: 14px; }
-  .btn.big.earn { background: var(--green); border-color: var(--green); box-shadow: 0 3px 0 #0b654c; }
-  .btn.big.retry { background: var(--soft-blue); color: var(--blue-dark); border-color: #b9cff3; box-shadow: 0 3px 0 #b9cff3; }
-  .or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; font-weight: 800; margin: 14px 0 10px; }
-  .or::before, .or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
-  input.big { width: 100%; min-width: 0; font-size: 26px; font-weight: 900; padding: 10px 14px; border: 2px solid #cfd6e2; border-radius: 12px; background: #fff; letter-spacing: 1px; }
-  input.big:focus { outline: 3px solid #bcd3fb; border-color: var(--blue); }
-  input.big:disabled { background: #f1f3f7; color: #8a93a3; }
-  .manual { display: grid; grid-template-columns: minmax(0, 1fr) 96px; gap: 8px; }
+  .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 3px 0 var(--blue-dark); }
+  .btn.ghost { background: #f6f7fa; }
 
-  .student { margin-top: 14px; border-radius: 16px; padding: 14px 16px; background: var(--soft-blue); border: 2px solid #c9dbf7; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-  .student.empty { background: #f6f7fa; border-color: var(--line); color: var(--muted); font-weight: 800; justify-content: center; }
-  .student .sid { font-family: 'Jua', sans-serif; font-size: 30px; line-height: 1.1; }
-  .student .badge { display: inline-block; margin-top: 4px; font-size: 12px; font-weight: 900; padding: 3px 8px; border-radius: 999px; background: #fff; color: var(--green); }
-  .student .badge.manual { color: #b06a00; }
-  .student .bal { text-align: right; font-weight: 800; color: #334262; font-size: 13px; }
-  .student .bal strong { display: block; font-size: 28px; color: var(--ink); }
+  .student { flex: 0 0 auto; border-radius: 14px; padding: 10px 14px; background: var(--soft-blue); border: 2px solid #c9dbf7;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: clamp(64px, 10vh, 84px); }
+  .student.empty { background: #f6f7fa; border-color: var(--line); color: var(--muted); font-weight: 800; justify-content: center; font-size: 15px; }
+  .student .sid { font-family: 'Jua', 'Noto Sans KR', sans-serif; font-size: clamp(24px, 4vh, 32px); line-height: 1.05; }
+  .badge { display: inline-block; margin-top: 3px; font-size: 12px; font-weight: 900; padding: 2px 8px; border-radius: 999px; background: #fff; color: var(--green); }
+  .badge.manual { color: #b06a00; }
+  .student .bal { text-align: right; font-weight: 800; color: #334262; font-size: 12px; }
+  .student .bal strong { display: block; font-size: clamp(22px, 3.8vh, 30px); color: var(--ink); }
 
-  .segmented { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; background: #eee9d5; border-radius: 12px; gap: 4px; margin: 4px 0 14px; }
-  .segmented button { border: 0; background: transparent; color: #616a77; border-radius: 9px; padding: 13px; font-weight: 900; font-size: 17px; }
-  .segmented button.selected { background: var(--red); color: #fff; box-shadow: 0 2px 0 #bf4749; }
-  .segmented button.selected.earn { background: var(--green); box-shadow: 0 2px 0 #0b654c; }
-  .label { display: block; font-weight: 800; font-size: 14px; margin: 0 0 6px; color: #334262; }
-  .amount-row { display: grid; grid-template-columns: 58px minmax(0, 1fr) 58px; gap: 8px; }
-  .amount-row button { border: 1px solid #d6dce6; background: #fff; border-radius: 12px; font-size: 24px; font-weight: 900; }
-  .amount-row input { text-align: center; }
-  .quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
-  .quick button { border: 1px solid #e3b823; background: var(--soft-yellow); border-radius: 12px; padding: 10px 4px; font-weight: 900; font-size: 16px; }
-
-  .status { margin-top: 12px; border-radius: 14px; padding: 12px 14px; font-weight: 800; line-height: 1.45; background: #f6f7fa; color: #334262; }
+  .status { flex: 0 0 auto; border-radius: 12px; padding: 8px 12px; font-weight: 800; font-size: 14px; line-height: 1.4; background: #f6f7fa; color: #334262; }
   .status.ok { background: var(--soft-green); color: #0f5e46; border: 2px solid #8fd1b2; }
   .status.warn { background: var(--soft-red); color: #a1332f; border: 2px solid #f2c5bd; }
   .status.wait { background: var(--soft-blue); color: var(--blue-dark); border: 2px solid #c9dbf7; }
-  .status strong.balance { display: block; font-size: 28px; margin-top: 2px; color: var(--ink); }
+  .status strong.big { display: block; font-size: clamp(20px, 3.4vh, 26px); color: var(--ink); }
 
-  ul.tx { list-style: none; margin: 0; padding: 0; }
-  ul.tx li { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); font-weight: 700; }
+  /* 가운데: 처리 */
+  .segmented { flex: 0 0 auto; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; background: #eee9d5; border-radius: 12px; gap: 4px; }
+  .segmented button { border: 0; background: transparent; color: #616a77; border-radius: 9px; padding: 0; min-height: clamp(38px, 6vh, 48px); font-weight: 900; font-size: 16px; }
+  .segmented button.selected { background: var(--red); color: #fff; box-shadow: 0 2px 0 var(--red-dark); }
+  .segmented button.selected.earn { background: var(--green); box-shadow: 0 2px 0 var(--green-dark); }
+  .display { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 2px solid #cfd6e2; border-radius: 14px;
+    padding: 4px 14px; min-height: clamp(50px, 8.4vh, 66px); background: #fff; }
+  .display.sid { border-color: #e3b823; background: var(--soft-yellow); }
+  .display .lbl { font-size: 13px; font-weight: 800; color: #334262; white-space: nowrap; }
+  .display .val { font-size: clamp(28px, 5.4vh, 40px); font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: 1px; }
+  .display .val.placeholder { color: #b5bcc8; }
+  .quick { flex: 0 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .quick button { border: 1px solid #e3b823; background: var(--soft-yellow); border-radius: 10px; min-height: clamp(34px, 5.2vh, 42px); font-weight: 900; font-size: 15px; }
+  .keypad { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 6px; }
+  .keypad button { border: 1px solid #d6dce6; background: #fff; border-radius: 12px; font-size: clamp(20px, 3.6vh, 28px); font-weight: 900; box-shadow: 0 2px 0 #e3e8f0; min-height: 0; }
+  .keypad button:active { background: var(--soft-blue); }
+  .keypad .fn { font-size: clamp(14px, 2.4vh, 17px); color: #556070; background: #f6f7fa; }
+  .go { flex: 0 0 auto; width: 100%; border: 0; border-radius: 14px; min-height: clamp(52px, 8.6vh, 68px); font-size: clamp(18px, 3vh, 22px); font-weight: 900;
+    color: #fff; background: var(--red); box-shadow: 0 3px 0 var(--red-dark); }
+  .go.earn { background: var(--green); box-shadow: 0 3px 0 var(--green-dark); }
+  .go.check { background: var(--blue); box-shadow: 0 3px 0 var(--blue-dark); }
+  .go.retry { background: var(--soft-blue); color: var(--blue-dark); box-shadow: 0 3px 0 #b9cff3; border: 2px solid #b9cff3; }
+  .go.next { background: var(--yellow); color: var(--ink); box-shadow: 0 3px 0 #c99e14; }
+
+  /* 오른쪽: 최근 거래 */
+  ul.tx { list-style: none; margin: 0; padding: 0; flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  ul.tx li { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 14px; }
   ul.tx li:last-child { border-bottom: 0; }
   ul.tx li.empty { display: block; color: var(--muted); padding: 8px 0; }
-  ul.tx time { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+  ul.tx time { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
   ul.tx .main { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   ul.tx .main small { color: var(--muted); font-weight: 700; }
   ul.tx .amt { font-weight: 900; font-variant-numeric: tabular-nums; }
   ul.tx .amt.earn { color: var(--green); } ul.tx .amt.spend { color: #c2392f; }
   ul.tx li.cancelled .main, ul.tx li.cancelled .amt { text-decoration: line-through; color: #a0a7b4; }
-  ul.tx .right { display: flex; align-items: center; gap: 8px; }
-  ul.tx button { border: 1px solid #d6dce6; background: #fff; border-radius: 9px; padding: 6px 10px; font-weight: 800; font-size: 13px; }
+  ul.tx .right { display: flex; align-items: center; gap: 6px; }
+  ul.tx button { border: 1px solid #d6dce6; background: #fff; border-radius: 8px; padding: 5px 8px; font-weight: 800; font-size: 12px; }
   ul.tx button.confirm { background: var(--red); border-color: var(--red); color: #fff; }
-  .note { color: var(--muted); font-size: 13px; font-weight: 700; margin: 10px 0 0; }
+  .note { flex: 0 0 auto; color: var(--muted); font-size: 12px; font-weight: 700; margin: 0; }
+
+  /* 잔액 확인: 2단, QR 전용 */
+  .kiosk-grid { height: 100%; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--gap); }
+  .kiosk-idle { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; }
+  .kiosk-idle img { max-height: 58%; max-width: 90%; height: auto; width: auto; }
+  .kiosk-idle h2 { margin: 6px 0 0; font-family: 'Jua', 'Noto Sans KR', sans-serif; font-weight: 400; font-size: clamp(26px, 4.6vh, 38px); color: var(--title-red); }
+  .kiosk-idle h2 b { color: var(--title-blue); font-weight: 400; }
+  .kiosk-idle p { margin: 0; color: #334262; font-weight: 800; font-size: clamp(14px, 2.2vh, 17px); }
+  .kiosk-result { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 8px; background: var(--soft-green); border: 3px solid #62bf91; border-radius: 16px; padding: 12px 14px; }
+  .kiosk-result .head { text-align: center; }
+  .kiosk-result .done { color: var(--green); font-weight: 900; font-size: 16px; }
+  .kiosk-result .sid { font-size: clamp(18px, 3vh, 24px); font-weight: 800; }
+  .kiosk-result .num { font-size: clamp(48px, 10vh, 84px); font-weight: 900; color: var(--green); line-height: 1.02; font-variant-numeric: tabular-nums; }
+  .kiosk-result .num small { font-size: .42em; }
+  .kiosk-result h3 { margin: 0; font-size: 15px; }
+  .kiosk-result ul.tx { background: #fff; border-radius: 12px; padding: 0 10px; }
 
   /* 로그인 */
-  .login { width: min(100%, 460px); margin: 4vh auto 0; text-align: center; }
-  .login .mascot { width: min(70%, 260px); height: auto; display: block; margin: 0 auto 6px; }
-  .login .panel { text-align: left; }
+  .login { height: 100%; display: grid; place-items: center; overflow-y: auto; }
+  .login-card { width: min(100%, 420px); text-align: center; }
+  .login-card img { width: min(56%, 220px); height: auto; display: block; margin: 0 auto 8px; }
+  .login-card .panel { text-align: left; }
+  .login-card input { width: 100%; font-size: 24px; font-weight: 900; padding: 10px 14px; border: 2px solid #cfd6e2; border-radius: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .login-card label { font-weight: 800; font-size: 14px; color: #334262; }
 
-  /* 잔액 확인 */
-  .kiosk { width: min(100%, 720px); margin: 0 auto; }
-  .kiosk-result { text-align: center; background: var(--soft-green); border: 3px solid #62bf91; border-radius: 18px; box-shadow: 0 6px 0 #c8ead7; padding: 18px; }
-  .kiosk-result .done { color: var(--green); font-weight: 900; font-size: 20px; }
-  .kiosk-result .sid { font-size: 24px; font-weight: 800; margin-top: 6px; }
-  .kiosk-result .num { font-size: clamp(56px, 12vw, 88px); font-weight: 900; color: var(--green); line-height: 1.05; }
-  .kiosk-result .num small { font-size: .45em; }
-  .kiosk-result h3 { text-align: left; margin: 14px 0 4px; font-size: 16px; }
-  .kiosk-result ul.tx { text-align: left; background: #fff; border-radius: 12px; padding: 4px 12px; }
-  .setup-error { max-width: 640px; margin: 8vh auto; }
-
-  @media (max-width: 860px) {
-    .grid { grid-template-columns: 1fr; }
-    .brand small { display: none; }
-  }
-  @media (max-width: 480px) {
-    .intro .mascot { width: 118px; }
-    .intro h1 { font-size: 30px; }
-    .brand strong { display: none; }
+  /* 좁은 화면(휴대폰·세로)에서는 위아래로 쌓고 스크롤 허용 */
+  @media (max-width: 900px), (max-height: 520px) {
+    body { overflow: auto; }
+    .app { height: auto; min-height: 100dvh; }
+    .booth-grid, .kiosk-grid { grid-template-columns: 1fr; height: auto; }
+    .reader { flex: 0 0 auto; aspect-ratio: 4 / 3; }
+    .keypad { grid-auto-rows: 52px; }
+    ul.tx { max-height: 320px; }
+    .kiosk-idle img { max-height: 220px; }
+    .booth-chip { max-width: 40vw; }
+    .topbar .title { font-size: 18px; }
   }
 </style>
 </head>
 <body>
-<header class="topbar">
-  <div class="brand"><span class="brand-mark" aria-hidden="true"><span>?</span></span><strong>질문? 아나, 받아라!</strong><small>예비 앱</small></div>
-  <div class="session" id="session" hidden><span class="chip" id="session-chip"></span><button class="linkish" id="logout" type="button">로그아웃</button></div>
-</header>
+<div class="app">
+  <header class="topbar">
+    <span class="brand-mark" aria-hidden="true"><span>?</span></span>
+    <span class="title">질문? <b>아나, 받아라!</b></span>
+    <span class="booth-chip" id="booth-chip" hidden></span>
+    <span class="spacer"></span>
+    <img class="mascot" id="top-mascot" src="assets/ajimae-booth-cutout.webp" alt="질문 코인과 생선을 든 자갈치 아지매 토끼" hidden>
+    <button class="linkish" id="logout" type="button" hidden>로그아웃</button>
+  </header>
 
-<main>
-  <!-- 설정 안내 -->
-  <section id="view-setup" class="panel setup-error" hidden>
-    <h2>설정이 필요해요</h2>
-    <p>config.js 파일에 Supabase 주소와 키를 넣어 주세요.</p>
-  </section>
+  <main>
+    <!-- 설정 안내 -->
+    <section id="view-setup" class="view login" hidden>
+      <div class="login-card"><div class="panel"><h2 class="panel-title">설정이 필요해요</h2><p>config.js 파일에 Supabase 주소와 키를 넣어 주세요.</p></div></div>
+    </section>
 
-  <!-- 로그인 -->
-  <section id="view-login" class="login" hidden>
-    <img class="mascot" src="assets/ajimae-full-trim.webp" alt="질문? 아나, 받아라! 말풍선과 함께 앉아 있는 자갈치 아지매 토끼">
-    <form class="panel" id="login-form" autocomplete="off">
-      <label class="label" for="login-code">부스 코드</label>
-      <input class="big" id="login-code" placeholder="예: B01-1234" autocapitalize="characters" spellcheck="false">
-      <button class="btn big primary" id="login-btn" type="submit">로그인</button>
-      <div class="status warn" id="login-status" hidden></div>
-    </form>
-  </section>
-
-  <!-- 부스 -->
-  <section id="view-booth" hidden>
-    <div class="intro">
-      <div class="intro-copy">
-        <p class="eyebrow">질문으로 모으고, 나눔으로 쓰는 아나바다 · 예비 앱</p>
-        <h1>질문? <b>아나, 받아라!</b></h1>
-        <p class="subtitle" id="booth-subtitle">학생 QR을 스캔해 주세요</p>
-      </div>
-      <img class="mascot" src="assets/ajimae-booth-cutout.webp" alt="질문 코인과 생선을 든 자갈치 아지매 토끼">
-    </div>
-    <div class="grid">
-      <section class="panel">
-        <div class="step">01 · 학생 확인</div>
-        <h2>QR을 스캔해 주세요</h2>
-        <div class="reader" id="booth-reader" hidden><video id="booth-video" playsinline muted></video><div class="guide"></div><div class="hint">QR을 네모 안에 맞춰 주세요</div></div>
-        <div class="row">
-          <button class="btn yellow" id="booth-scan" type="button">QR 스캔 시작</button>
-          <button class="btn" id="booth-flip" type="button">카메라 전환</button>
-        </div>
-        <div class="or">QR이 없으면 학번 직접 입력</div>
-        <form class="manual" id="booth-manual" autocomplete="off">
-          <input class="big" id="booth-sid" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="학번 4자리">
-          <button class="btn primary" id="booth-sid-go" type="submit">확인</button>
+    <!-- 로그인 -->
+    <section id="view-login" class="view login" hidden>
+      <div class="login-card">
+        <img src="assets/ajimae-full-trim.webp" alt="질문? 아나, 받아라! 말풍선과 함께 앉아 있는 자갈치 아지매 토끼">
+        <form class="panel" id="login-form" autocomplete="off">
+          <label for="login-code">부스 코드</label>
+          <input id="login-code" placeholder="예: B01-1234" autocapitalize="characters" autocorrect="off" spellcheck="false">
+          <button class="go check" id="login-btn" type="submit">로그인</button>
+          <div class="status warn" id="login-status" hidden></div>
         </form>
-        <div class="student empty" id="booth-student">아직 확인한 학생이 없어요</div>
-      </section>
-
-      <form class="panel" id="tx-form" autocomplete="off">
-        <div class="step">02 · 포인트 처리</div>
-        <h2>어떻게 처리할까요?</h2>
-        <div class="segmented" id="mode-seg">
-          <button type="button" data-mode="spend" class="selected">포인트 사용</button>
-          <button type="button" data-mode="earn">포인트 적립</button>
-        </div>
-        <label class="label" for="tx-amount">처리할 포인트</label>
-        <div class="amount-row">
-          <button type="button" data-adjust="-1" aria-label="1포인트 줄이기">−</button>
-          <input class="big" id="tx-amount" inputmode="numeric" pattern="[0-9]*" placeholder="0">
-          <button type="button" data-adjust="1" aria-label="1포인트 늘리기">+</button>
-        </div>
-        <div class="quick">
-          <button type="button" data-add="5">+5</button>
-          <button type="button" data-add="10">+10</button>
-          <button type="button" data-add="20">+20</button>
-          <button type="button" data-clear="1">지우기</button>
-        </div>
-        <button class="btn big" id="tx-go" type="submit" style="background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 3px 0 #bf4749">포인트 사용하기</button>
-        <div class="status" id="tx-status" hidden></div>
-        <button class="btn" id="tx-next" type="button" hidden style="width:100%;margin-top:10px">다음 학생</button>
-        <button class="linkish danger" id="tx-discard" type="button" hidden>선생님 확인 후: 이 거래 버리기</button>
-      </form>
-
-      <section class="panel wide">
-        <h2>우리 부스 최근 거래 10건</h2>
-        <ul class="tx" id="booth-recent"><li class="empty">아직 거래가 없어요.</li></ul>
-        <p class="note">잘못 처리한 거래는 '취소'를 두 번 눌러 되돌릴 수 있어요.</p>
-      </section>
-    </div>
-  </section>
-
-  <!-- 잔액 확인 -->
-  <section id="view-kiosk" class="kiosk" hidden>
-    <div class="intro">
-      <div class="intro-copy">
-        <p class="eyebrow">질문? 아나, 받아라! · 잔액 확인</p>
-        <h1>내 포인트 <b>확인하기</b></h1>
-        <p class="subtitle">QR을 비추면 잔액과 오늘 활동을 보여드려요.</p>
       </div>
-      <img class="mascot" src="assets/ajimae-full-trim.webp" alt="말풍선과 함께 앉아 있는 자갈치 아지매 토끼">
-    </div>
-    <section class="panel" id="kiosk-input">
-      <div class="reader" id="kiosk-reader" hidden><video id="kiosk-video" playsinline muted></video><div class="guide"></div><div class="hint">QR을 네모 안에 맞춰 주세요</div></div>
-      <div class="row">
-        <button class="btn yellow" id="kiosk-scan" type="button">QR 스캔 시작</button>
-        <button class="btn" id="kiosk-flip" type="button">카메라 전환</button>
+    </section>
+
+    <!-- 거래 부스 -->
+    <section id="view-booth" class="view" hidden>
+      <div class="booth-grid">
+        <section class="panel">
+          <h2 class="panel-title">01 학생 확인 <small id="scan-state">QR을 카메라에 비춰 주세요</small></h2>
+          <div class="reader" id="booth-reader">
+            <video id="booth-video" playsinline muted autoplay></video>
+            <div class="guide" id="booth-guide" hidden></div>
+            <div class="idle" id="booth-idle">‘QR 스캔’을 누르면 카메라가 켜져요</div>
+            <div class="hint" id="booth-hint" hidden>QR을 네모 안에 맞춰 주세요</div>
+          </div>
+          <div class="row">
+            <button class="btn yellow" id="booth-scan" type="button">QR 스캔</button>
+            <button class="btn ghost" id="booth-flip" type="button">카메라 전환</button>
+            <button class="btn ghost" id="booth-manual" type="button">학번 입력</button>
+          </div>
+          <div class="student empty" id="booth-student">아직 확인한 학생이 없어요</div>
+          <div class="status" id="tx-status" hidden></div>
+          <button class="linkish danger" id="tx-discard" type="button" hidden>선생님 확인 후: 이 거래 버리기</button>
+        </section>
+
+        <section class="panel">
+          <h2 class="panel-title">02 포인트 처리</h2>
+          <div class="segmented" id="mode-seg">
+            <button type="button" data-mode="spend" class="selected">포인트 사용</button>
+            <button type="button" data-mode="earn">포인트 적립</button>
+          </div>
+          <div class="display" id="display"><span class="lbl" id="display-lbl">처리할 포인트</span><span class="val placeholder" id="display-val">0 P</span></div>
+          <div class="quick" id="quick">
+            <button type="button" data-add="5">+5</button>
+            <button type="button" data-add="10">+10</button>
+            <button type="button" data-add="20">+20</button>
+          </div>
+          <div class="keypad" id="keypad">
+            <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button>
+            <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button>
+            <button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button>
+            <button type="button" class="fn" data-key="C">지우기</button><button type="button" data-key="0">0</button><button type="button" class="fn" data-key="B">⌫</button>
+          </div>
+          <button class="go" id="tx-go" type="button">포인트 사용하기</button>
+        </section>
+
+        <section class="panel">
+          <h2 class="panel-title">최근 거래 <small>우리 부스 10건</small></h2>
+          <ul class="tx" id="booth-recent"><li class="empty">아직 거래가 없어요.</li></ul>
+          <p class="note">잘못 처리했으면 ‘취소’를 두 번 눌러 되돌려요.</p>
+        </section>
       </div>
-      <div class="or">QR이 없으면 학번 직접 입력</div>
-      <form class="manual" id="kiosk-manual" autocomplete="off">
-        <input class="big" id="kiosk-sid" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="학번 4자리">
-        <button class="btn primary" id="kiosk-go" type="submit">확인</button>
-      </form>
-      <div class="status" id="kiosk-status" hidden></div>
     </section>
-    <section class="kiosk-result" id="kiosk-result" hidden>
-      <div class="done">잔액 확인 완료</div>
-      <div class="sid" id="kiosk-res-sid"></div>
-      <div class="num" id="kiosk-res-num"></div>
-      <h3>오늘 포인트 활동</h3>
-      <ul class="tx" id="kiosk-res-list"></ul>
-      <button class="btn big primary" id="kiosk-again" type="button">다음 학생 확인</button>
-      <p class="note">20초 뒤 자동으로 다음 학생 화면으로 돌아가요.</p>
+
+    <!-- 잔액 확인 (QR 전용) -->
+    <section id="view-kiosk" class="view" hidden>
+      <div class="kiosk-grid">
+        <section class="panel">
+          <h2 class="panel-title">QR 스캔 <small id="kiosk-state">카메라 준비 중</small></h2>
+          <div class="reader" id="kiosk-reader">
+            <video id="kiosk-video" playsinline muted autoplay></video>
+            <div class="guide" id="kiosk-guide" hidden></div>
+            <div class="idle" id="kiosk-idle">카메라를 켜는 중이에요…</div>
+            <div class="hint" id="kiosk-hint" hidden>QR을 네모 안에 맞춰 주세요</div>
+          </div>
+          <div class="row">
+            <button class="btn yellow" id="kiosk-scan" type="button">카메라 다시 켜기</button>
+            <button class="btn ghost" id="kiosk-flip" type="button">카메라 전환</button>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="kiosk-idle" id="kiosk-idle-pane">
+            <img src="assets/ajimae-full-trim.webp" alt="말풍선과 함께 앉아 있는 자갈치 아지매 토끼">
+            <h2>내 포인트 <b>확인하기</b></h2>
+            <p>QR 스티커를 카메라에 비춰 주세요.</p>
+            <div class="status" id="kiosk-status" hidden></div>
+          </div>
+          <div class="kiosk-result" id="kiosk-result" hidden>
+            <div class="head">
+              <div class="done">잔액 확인 완료</div>
+              <div class="sid" id="kiosk-res-sid"></div>
+              <div class="num" id="kiosk-res-num"></div>
+            </div>
+            <h3>오늘 포인트 활동</h3>
+            <ul class="tx" id="kiosk-res-list"></ul>
+            <button class="go check" id="kiosk-again" type="button">다음 학생 <span id="kiosk-count"></span></button>
+          </div>
+        </section>
+      </div>
     </section>
-  </section>
-</main>
+  </main>
+</div>
 
 <script src="config.js"></script>
 <script src="vendor/jsQR.js" defer></script>
@@ -281,7 +300,7 @@
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   function setStatus(box, kind, text, big) {
     box.hidden = false; box.className = 'status ' + (kind || ''); box.textContent = text;
-    if (big != null) box.appendChild(el('strong', 'balance', big));
+    if (big != null) box.appendChild(el('strong', 'big', big));
   }
   function hide(box) { box.hidden = true; box.textContent = ''; }
   var KIND_LABEL = { earn: '적립', spend: '사용', cancel: '취소' };
@@ -293,8 +312,6 @@
   var CFG = window.QP_CONFIG || {};
   var configured = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(CFG.SUPABASE_URL || '') && CFG.SUPABASE_KEY && !/여기에/.test(CFG.SUPABASE_KEY);
   var busy = false;
-
-  /** 결과는 항상 객체로 돌려줌. 인터넷 문제면 code:'network' */
   function api(fn, body) {
     var headers = { 'Content-Type': 'application/json', apikey: CFG.SUPABASE_KEY };
     if (/^eyJ/.test(CFG.SUPABASE_KEY)) headers.Authorization = 'Bearer ' + CFG.SUPABASE_KEY;
@@ -321,29 +338,37 @@
   var UNSURE = { network: 1, server: 1 };
 
   /* ───────── QR 스캐너 ───────── */
-  function Scanner(video, box, onText) {
-    this.video = video; this.box = box; this.onText = onText; this.stream = null; this.timer = null; this.running = false;
+  var facing = load(KEY_FACING) || 'user'; // 기본: 전면 카메라(학생이 화면 쪽으로 QR을 보여줌)
+  function Scanner(prefix, onText) {
+    this.video = $(prefix + '-video'); this.guide = $(prefix + '-guide'); this.idle = $(prefix + '-idle'); this.hint = $(prefix + '-hint');
+    this.onText = onText; this.stream = null; this.timer = null; this.running = false; this.detector = null;
     this.canvas = document.createElement('canvas'); this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
-    this.detector = null;
   }
-  Scanner.prototype.start = function (facing) {
+  Scanner.prototype.setIdle = function (text) {
+    this.idle.textContent = text; this.idle.hidden = false; this.guide.hidden = true; this.hint.hidden = true;
+  };
+  Scanner.prototype.start = function () {
     var self = this;
     this.stop();
     this.running = true;
-    this.box.hidden = false;
-    var setupDetector = Promise.resolve();
+    this.setIdle('카메라를 켜는 중이에요…');
+    var setup = Promise.resolve();
     if ('BarcodeDetector' in window && !self.detector) {
-      setupDetector = window.BarcodeDetector.getSupportedFormats().then(function (f) {
+      setup = window.BarcodeDetector.getSupportedFormats().then(function (f) {
         if (f.indexOf('qr_code') >= 0) self.detector = new window.BarcodeDetector({ formats: ['qr_code'] });
       }).catch(function () {});
     }
-    return setupDetector.then(function () {
+    return setup.then(function () {
       return navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: facing }, width: { ideal: 1280 }, height: { ideal: 720 } } });
     }).then(function (stream) {
       if (!self.running) { stream.getTracks().forEach(function (t) { t.stop(); }); return; }
       self.stream = stream;
       self.video.srcObject = stream;
-      return self.video.play().then(function () { self.loop(); });
+      self.video.classList.toggle('mirror', facing === 'user');
+      return self.video.play().then(function () {
+        self.idle.hidden = true; self.guide.hidden = false; self.hint.hidden = false;
+        self.loop();
+      });
     }).catch(function (e) { self.stop(); throw e; });
   };
   Scanner.prototype.loop = function () {
@@ -363,18 +388,17 @@
     var w = Math.round(v.videoWidth * scale), h = Math.round(v.videoHeight * scale);
     this.canvas.width = w; this.canvas.height = h;
     this.ctx.drawImage(v, 0, 0, w, h);
-    var img = this.ctx.getImageData(0, 0, w, h);
-    var code = window.jsQR(img.data, w, h, { inversionAttempts: 'dontInvert' });
+    var code = window.jsQR(this.ctx.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: 'dontInvert' });
     if (code && code.data) this.found(code.data); else next();
   };
   Scanner.prototype.found = function (text) { this.stop(); this.onText(text); };
-  Scanner.prototype.stop = function () {
+  Scanner.prototype.stop = function (idleText) {
     this.running = false;
     clearTimeout(this.timer);
     if (this.stream) this.stream.getTracks().forEach(function (t) { t.stop(); });
     this.stream = null;
     try { this.video.srcObject = null; } catch (e) {}
-    this.box.hidden = true;
+    this.setIdle(idleText || '‘QR 스캔’을 누르면 카메라가 켜져요');
   };
   function parseQr(text) {
     var m = /^QPM1\|([0-9]{3,6})\|([A-Za-z0-9_-]{24,128})$/.exec(String(text || '').trim());
@@ -382,17 +406,18 @@
   }
   function cameraError(e) {
     var n = e && e.name;
-    if (n === 'NotAllowedError') return '카메라 사용이 허용되지 않았어요. 주소창의 카메라 권한을 허용해 주세요.';
-    if (n === 'NotFoundError') return '카메라를 찾지 못했어요. 학번 직접 입력을 사용해 주세요.';
-    return '카메라를 열 수 없어요. 학번 직접 입력을 사용해 주세요.';
+    if (n === 'NotAllowedError') return '카메라 사용이 허용되지 않았어요. 사파리 주소창 왼쪽 ‘가가’ → 웹사이트 설정 → 카메라 → 허용으로 바꿔 주세요.';
+    if (n === 'NotFoundError' || n === 'OverconstrainedError') return '카메라를 찾지 못했어요. ‘카메라 전환’을 눌러 보세요.';
+    return '카메라를 열 수 없어요. 페이지를 새로고침해 주세요.';
   }
-  var facing = load(KEY_FACING) || 'environment';
 
   /* ───────── 화면 전환·로그인 ───────── */
   var session = null;
   function show(view) {
     ['view-setup', 'view-login', 'view-booth', 'view-kiosk'].forEach(function (v) { $(v).hidden = v !== view; });
-    $('session').hidden = !(view === 'view-booth' || view === 'view-kiosk');
+    var inApp = view === 'view-booth' || view === 'view-kiosk';
+    $('logout').hidden = !inApp; $('booth-chip').hidden = !inApp; $('top-mascot').hidden = view !== 'view-booth';
+    if (session) $('booth-chip').textContent = session.name;
   }
   function login(code) {
     var btn = $('login-btn');
@@ -407,7 +432,7 @@
       }
       session = res.booth;
       store(KEY_CODE, session.code);
-      $('session-chip').textContent = session.name + ' · ' + session.code;
+      if (document.activeElement) document.activeElement.blur(); // 아이패드 키보드 내리기
       if (session.type === 'kiosk') openKiosk(); else openBooth(res.recent || []);
     });
     if (!sent) { btn.disabled = false; btn.textContent = '로그인'; }
@@ -428,95 +453,45 @@
     }
     b.dataset.armed = ''; b.textContent = '로그아웃';
     boothScanner.stop(); kioskScanner.stop();
-    clearTimeout(kioskTimer); clearTimeout(receiptTimer);
+    clearTimeout(kioskTimer); clearInterval(kioskTick); clearTimeout(receiptTimer);
     store(KEY_CODE, null); session = null;
     $('login-code').value = ''; hide($('login-status'));
     show('view-login');
   });
+  function forceLogout(message) {
+    boothScanner.stop(); kioskScanner.stop();
+    store(KEY_CODE, null); store(KEY_PENDING, null); pending = null; session = null;
+    show('view-login');
+    setStatus($('login-status'), 'warn', message || '다시 로그인해 주세요.');
+  }
 
-  /* ───────── 부스 ───────── */
+  /* ───────── 거래 부스 ───────── */
   var selected = null;   // { sid, token, balance, via }
   var pending = null;    // 결과를 아직 확인 못 한 거래
   var mode = load(KEY_MODE) === 'earn' ? 'earn' : 'spend';
-  var receiptTimer = null, cancelArmed = null, cancelTimer = null, discardArmed = false;
-  var lastVia = 'qr';
-  var boothScanner = new Scanner($('booth-video'), $('booth-reader'), onBoothQr);
+  var entry = { target: 'amount', value: '' }; // 숫자패드 입력 대상: 'amount' | 'sid'
+  var phase = 'ready';   // ready | sending | retry | done
+  var receiptTimer = null, cancelArmed = null, cancelTimer = null, discardArmed = false, doneAt = 0;
+  var boothScanner = new Scanner('booth', onBoothQr);
 
   function openBooth(recent) {
-    $('booth-subtitle').textContent = session.name + ' · 학생 QR을 스캔해 주세요';
     show('view-booth');
     renderRecent(recent);
-    setMode(mode, true);
     var saved = load(KEY_PENDING);
     if (saved && saved.opId && saved.code === session.code) {
       pending = saved;
       selected = { sid: saved.sid, token: saved.token, balance: null, via: saved.token ? 'qr' : 'manual' };
-      renderStudent();
-      $('tx-amount').value = saved.amount;
-      setMode(saved.mode, true);
-      lockForPending(true);
-      showRetry('이전에 보낸 거래의 결과를 확인하고 있어요...');
+      mode = saved.mode;
+      entry = { target: 'amount', value: String(saved.amount) };
+      renderAll();
+      setPhase('retry', '이전에 보낸 거래의 결과를 확인하고 있어요...');
       setTimeout(sendPending, 0);
     } else {
-      resetStudent(false);
+      resetStudent(true);
     }
   }
 
-  function scanStart() {
-    if (pending) return;
-    var btn = $('booth-scan');
-    hide($('tx-status'));
-    btn.disabled = true; btn.textContent = '카메라 여는 중...';
-    boothScanner.start(facing).then(function () {
-      btn.disabled = false; btn.textContent = '스캔 멈추기';
-    }).catch(function (e) {
-      btn.disabled = false; btn.textContent = 'QR 스캔 시작';
-      setStatus($('tx-status'), 'warn', cameraError(e));
-    });
-  }
-  $('booth-scan').addEventListener('click', function () {
-    if (boothScanner.running) { boothScanner.stop(); this.textContent = 'QR 스캔 시작'; return; }
-    scanStart();
-  });
-  $('booth-flip').addEventListener('click', function () {
-    facing = facing === 'user' ? 'environment' : 'user'; store(KEY_FACING, facing);
-    if (boothScanner.running) scanStart();
-  });
-
-  function onBoothQr(text) {
-    $('booth-scan').textContent = 'QR 스캔 시작';
-    var qr = parseQr(text);
-    if (!qr) { setStatus($('tx-status'), 'warn', '학생 포인트 QR이 아니에요. 다시 스캔해 주세요.'); return; }
-    checkStudent(qr.sid, qr.token);
-  }
-  $('booth-manual').addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (pending) return;
-    var sid = $('booth-sid').value.replace(/\D/g, '');
-    if (!/^\d{3,6}$/.test(sid)) { setStatus($('tx-status'), 'warn', '학번을 숫자로 정확히 입력해 주세요.'); return; }
-    boothScanner.stop(); $('booth-scan').textContent = 'QR 스캔 시작';
-    checkStudent(sid, null);
-  });
-
-  function checkStudent(sid, token) {
-    var box = $('booth-student');
-    box.className = 'student empty'; box.textContent = sid + '번 학생 확인 중...';
-    var sent = call('qp_check', { p_code: session.code, p_student_id: sid, p_qr_token: token }, function (res) {
-      if (!res.ok) {
-        selected = null; renderStudent();
-        setStatus($('tx-status'), 'warn', res.code === 'network' ? '인터넷 연결이 불안정해요. 다시 시도해 주세요.' : (res.message || '학생을 확인하지 못했어요.'));
-        if (res.code === 'bad-code') forceLogout(res.message);
-        return;
-      }
-      selected = { sid: res.studentId, token: token, balance: res.balance, via: token ? 'qr' : 'manual' };
-      lastVia = selected.via;
-      $('booth-sid').value = '';
-      hide($('tx-status'));
-      renderStudent();
-      $('tx-amount').focus();
-    });
-    if (!sent) { renderStudent(); }
-  }
+  function renderAll() { renderStudent(); renderMode(); renderDisplay(); renderGo(); }
 
   function renderStudent() {
     var box = $('booth-student');
@@ -525,90 +500,166 @@
     box.className = 'student';
     var left = el('div');
     left.appendChild(el('div', 'sid', selected.sid + '번 학생'));
-    left.appendChild(el('span', 'badge' + (selected.via === 'manual' ? ' manual' : ''), selected.via === 'qr' ? 'QR 확인됨' : '학번 직접 입력 · 스티커 번호 확인'));
+    left.appendChild(el('span', 'badge' + (selected.via === 'manual' ? ' manual' : ''), selected.via === 'qr' ? 'QR 확인됨' : '학번 입력 · 스티커 번호 확인'));
     var right = el('div', 'bal', '보유 포인트');
     right.appendChild(el('strong', null, selected.balance == null ? '확인 중' : fmt(selected.balance) + 'P'));
     box.appendChild(left); box.appendChild(right);
   }
-
-  function setMode(next, force) {
-    if (pending && !force) return;
-    mode = next; store(KEY_MODE, next);
+  function renderMode() {
     $$('#mode-seg button').forEach(function (b) {
-      var on = b.dataset.mode === next;
+      var on = b.dataset.mode === mode;
       b.classList.toggle('selected', on);
-      b.classList.toggle('earn', on && next === 'earn');
+      b.classList.toggle('earn', on && mode === 'earn');
     });
-    var go = $('tx-go');
-    if (!pending) {
-      go.textContent = next === 'earn' ? '포인트 적립하기' : '포인트 사용하기';
-      go.className = 'btn big' + (next === 'earn' ? ' earn' : '');
-      go.style.cssText = next === 'earn' ? '' : 'background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 3px 0 #bf4749';
-    }
   }
-  $$('#mode-seg button').forEach(function (b) { b.addEventListener('click', function () {
-    var wasDone = $('tx-go').textContent === '거래 완료';
-    setMode(b.dataset.mode);
-    if (wasDone && !pending) { $('tx-go').disabled = true; $('tx-go').textContent = '거래 완료'; }
-  }); });
-  function amountValue() { var n = Number($('tx-amount').value); return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0; }
-  $$('[data-add]').forEach(function (b) { b.addEventListener('click', function () { if (!pending) $('tx-amount').value = amountValue() + Number(b.dataset.add); }); });
-  $$('[data-adjust]').forEach(function (b) { b.addEventListener('click', function () { if (!pending) $('tx-amount').value = Math.max(1, amountValue() + Number(b.dataset.adjust)); }); });
-  $$('[data-clear]').forEach(function (b) { b.addEventListener('click', function () { if (!pending) $('tx-amount').value = ''; }); });
+  function renderDisplay() {
+    var d = $('display'), lbl = $('display-lbl'), val = $('display-val');
+    var isSid = entry.target === 'sid';
+    d.classList.toggle('sid', isSid);
+    lbl.textContent = isSid ? '학번 입력 (스티커 번호 확인)' : '처리할 포인트';
+    val.classList.toggle('placeholder', !entry.value);
+    val.textContent = isSid ? (entry.value || '____') : (entry.value ? fmt(entry.value) : '0') + ' P';
+  }
+  function renderGo() {
+    var go = $('tx-go');
+    go.className = 'go';
+    go.disabled = false;
+    if (phase === 'sending') { go.disabled = true; go.textContent = '처리 중...'; go.classList.add(mode === 'earn' ? 'earn' : 'spend'); return; }
+    if (phase === 'retry') { go.classList.add('retry'); go.textContent = '같은 거래 결과 다시 확인'; return; }
+    if (phase === 'done') { go.classList.add('next'); go.textContent = '다음 학생'; return; }
+    if (entry.target === 'sid') { go.classList.add('check'); go.textContent = '학생 확인'; return; }
+    if (mode === 'earn') go.classList.add('earn');
+    go.textContent = mode === 'earn' ? '포인트 적립하기' : '포인트 사용하기';
+  }
+  function setPhase(p, message) {
+    phase = p;
+    var locked = p === 'sending' || p === 'retry';
+    $$('#mode-seg button, #quick button, #keypad button, #booth-scan, #booth-flip, #booth-manual').forEach(function (b) { b.disabled = locked; });
+    $('tx-discard').hidden = p !== 'retry';
+    if (p === 'retry') setStatus($('tx-status'), 'wait', message || '결과를 확인하지 못했어요. 아래 버튼을 다시 눌러 주세요. 두 번 처리되지 않아요.');
+    renderGo();
+  }
 
-  function lockForPending(locked) {
-    ['tx-amount', 'booth-sid', 'booth-sid-go', 'booth-scan', 'booth-flip'].forEach(function (id) { $(id).disabled = locked; });
-    $$('#mode-seg button, [data-add], [data-adjust], [data-clear]').forEach(function (b) { b.disabled = locked; });
-  }
-  function showRetry(message) {
-    var go = $('tx-go');
-    go.disabled = false; go.className = 'btn big retry'; go.style.cssText = ''; go.textContent = '같은 거래 결과 다시 확인';
-    setStatus($('tx-status'), 'wait', message);
-    $('tx-discard').hidden = false;
-  }
-  function clearPending() {
-    pending = null; store(KEY_PENDING, null);
-    discardArmed = false; $('tx-discard').hidden = true; $('tx-discard').textContent = '선생님 확인 후: 이 거래 버리기';
-    $('tx-go').disabled = false;
-    lockForPending(false);
-    setMode(mode, true);
-  }
-  function resetStudent(autoScan) {
+  /* 스캔 */
+  function scanStart() {
     if (pending || !session || session.type !== 'booth') return;
-    clearTimeout(receiptTimer);
-    selected = null; renderStudent();
-    $('tx-amount').value = ''; $('tx-next').hidden = true; $('tx-go').disabled = false;
-    setMode(mode, true);
-    hide($('tx-status'));
-    if (autoScan && lastVia === 'qr') scanStart(); else $('booth-sid').focus();
+    $('scan-state').textContent = 'QR을 카메라에 비춰 주세요';
+    boothScanner.start().catch(function (e) { setStatus($('tx-status'), 'warn', cameraError(e)); });
   }
-  // 거래 완료 뒤에는 버튼이 잠겨 있다가, 같은 학생에게 새 금액을 입력하면 다시 열림(연타로 두 번째 거래가 생기지 않게)
-  $('tx-amount').addEventListener('input', function () {
-    if (!pending && selected && $('tx-go').textContent === '거래 완료') { clearTimeout(receiptTimer); $('tx-go').disabled = false; setMode(mode, true); }
+  $('booth-scan').addEventListener('click', function () {
+    if (pending) return;
+    if (phase === 'done') { resetStudent(true); return; }
+    hide($('tx-status'));
+    scanStart();
   });
-  $('tx-next').addEventListener('click', function () { resetStudent(true); });
-
-  $('tx-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (busy) return;                                    // 연타 1차 차단
-    if (!pending) {
-      if (!selected) { setStatus($('tx-status'), 'warn', '먼저 학생 QR을 스캔하거나 학번을 입력해 주세요.'); return; }
-      var amount = amountValue();
-      if (!amount) { setStatus($('tx-status'), 'warn', '1 이상의 포인트를 입력해 주세요.'); $('tx-amount').focus(); return; }
-      if (mode === 'spend' && selected.balance != null && amount > selected.balance) {
-        setStatus($('tx-status'), 'warn', '잔액보다 많이 사용할 수 없어요.', '현재 잔액 ' + fmt(selected.balance) + 'P'); return;
+  $('booth-flip').addEventListener('click', function () {
+    facing = facing === 'user' ? 'environment' : 'user'; store(KEY_FACING, facing);
+    if (boothScanner.running) scanStart();
+  });
+  $('booth-manual').addEventListener('click', function () {
+    if (pending) return;
+    if (phase === 'done') resetStudent(false);
+    boothScanner.stop('QR이 없으면 숫자 버튼으로 학번을 입력해요');
+    entry = { target: 'sid', value: '' };
+    hide($('tx-status'));
+    renderDisplay(); renderGo();
+  });
+  function onBoothQr(text) {
+    var qr = parseQr(text);
+    if (!qr) { setStatus($('tx-status'), 'warn', '학생 포인트 QR이 아니에요. 다시 스캔해 주세요.'); setTimeout(scanStart, 1200); return; }
+    checkStudent(qr.sid, qr.token);
+  }
+  function checkStudent(sid, token) {
+    var box = $('booth-student');
+    box.className = 'student empty'; box.textContent = sid + '번 학생 확인 중...';
+    var sent = call('qp_check', { p_code: session.code, p_student_id: sid, p_qr_token: token }, function (res) {
+      if (!res.ok) {
+        selected = null; renderStudent();
+        setStatus($('tx-status'), 'warn', res.code === 'network' ? '인터넷 연결이 불안정해요. 다시 시도해 주세요.' : (res.message || '학생을 확인하지 못했어요.'));
+        if (res.code === 'bad-code') { forceLogout(res.message); return; }
+        if (token) setTimeout(scanStart, 2000);
+        return;
       }
-      pending = { code: session.code, sid: selected.sid, token: selected.token, mode: mode, amount: amount, opId: newId() };
-      store(KEY_PENDING, pending);                       // 새로고침해도 같은 거래번호로 이어서 확인
-      lockForPending(true);
+      selected = { sid: res.studentId, token: token, balance: res.balance, via: token ? 'qr' : 'manual' };
+      $('scan-state').textContent = token ? 'QR 확인 완료' : '학번 입력으로 확인';
+      boothScanner.stop(token ? '학생을 확인했어요. 다른 학생은 ‘QR 스캔’' : '학번으로 확인했어요');
+      entry = { target: 'amount', value: '' };
+      hide($('tx-status'));
+      renderAll();
+    });
+    if (!sent) renderStudent();
+  }
+
+  /* 숫자패드 */
+  function pressKey(k) {
+    if (pending || phase === 'sending') return;
+    if (phase === 'done') { // 거래 완료 후 숫자를 누르면 같은 학생에게 새 거래 입력
+      if (!/^[0-9]$/.test(k)) return;
+      clearTimeout(receiptTimer); phase = 'ready'; entry = { target: 'amount', value: '' };
     }
-    sendPending();
+    var max = entry.target === 'sid' ? 6 : 6;
+    if (k === 'C') entry.value = '';
+    else if (k === 'B') entry.value = entry.value.slice(0, -1);
+    else if (/^[0-9]$/.test(k)) {
+      if (entry.value.length >= max) return;
+      if (entry.value === '' && k === '0') return;
+      var nv = entry.value + k;
+      if (entry.target === 'amount' && Number(nv) > 100000) return;
+      entry.value = nv;
+    }
+    renderDisplay(); renderGo();
+  }
+  $$('#keypad button').forEach(function (b) { b.addEventListener('click', function () { pressKey(b.dataset.key); }); });
+  $$('#quick button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (pending || phase === 'sending') return;
+      if (phase === 'done') { clearTimeout(receiptTimer); phase = 'ready'; entry = { target: 'amount', value: '' }; }
+      if (entry.target !== 'amount') entry = { target: 'amount', value: '' };
+      entry.value = String(Math.min(100000, Number(entry.value || 0) + Number(b.dataset.add)));
+      renderDisplay(); renderGo();
+    });
   });
+  $$('#mode-seg button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (pending || phase === 'sending') return;
+      mode = b.dataset.mode; store(KEY_MODE, mode);
+      renderMode(); renderGo();
+    });
+  });
+  // 실제 키보드가 연결된 경우(테스트·외장 키보드)
+  document.addEventListener('keydown', function (e) {
+    if ($('view-booth').hidden || e.target.tagName === 'INPUT') return;
+    if (/^[0-9]$/.test(e.key)) { pressKey(e.key); e.preventDefault(); }
+    else if (e.key === 'Backspace') { pressKey('B'); e.preventDefault(); }
+    else if (e.key === 'Escape') { pressKey('C'); }
+    else if (e.key === 'Enter') { e.preventDefault(); goPressed(); }
+  });
+
+  /* 처리 버튼 */
+  $('tx-go').addEventListener('click', goPressed);
+  function goPressed() {
+    if (busy || phase === 'sending') return;            // 연타 1차 차단
+    if (phase === 'done') { if (Date.now() - doneAt > 1500) resetStudent(true); return; } // 완료 직후 연타로 결과가 바로 사라지지 않게
+    if (phase === 'retry') { sendPending(); return; }
+    if (entry.target === 'sid') {
+      if (!/^\d{3,6}$/.test(entry.value)) { setStatus($('tx-status'), 'warn', '학번을 숫자로 정확히 입력해 주세요.'); return; }
+      checkStudent(entry.value, null);
+      return;
+    }
+    if (!selected) { setStatus($('tx-status'), 'warn', '먼저 학생 QR을 스캔하거나 학번을 입력해 주세요.'); return; }
+    var amount = Number(entry.value);
+    if (!amount) { setStatus($('tx-status'), 'warn', '숫자 버튼으로 포인트를 입력해 주세요.'); return; }
+    if (mode === 'spend' && selected.balance != null && amount > selected.balance) {
+      setStatus($('tx-status'), 'warn', '잔액보다 많이 사용할 수 없어요.', '현재 잔액 ' + fmt(selected.balance) + 'P'); return;
+    }
+    pending = { code: session.code, sid: selected.sid, token: selected.token, mode: mode, amount: amount, opId: newId() };
+    store(KEY_PENDING, pending);                         // 새로고침해도 같은 거래번호로 이어서 확인
+    sendPending();
+  }
 
   function sendPending() {
     if (!pending || busy) return;
-    var go = $('tx-go');
-    go.disabled = true; go.textContent = '처리 중...';     // 연타 2차 차단
+    setPhase('sending');                                 // 연타 2차 차단(버튼 잠금)
     clearTimeout(receiptTimer);
     setStatus($('tx-status'), 'wait', pending.sid + '번 · ' + fmt(pending.amount) + 'P ' + KIND_LABEL[pending.mode] + ' 처리 중이에요.');
     call('qp_transact', {
@@ -618,24 +669,22 @@
       if (res.recent) renderRecent(res.recent);
       if (res.ok) {
         var done = pending;
-        clearPending();
-        if (selected) { selected.balance = res.balance; renderStudent(); }
-        $('tx-amount').value = '';
+        pending = null; store(KEY_PENDING, null);
+        if (selected) { selected.balance = res.balance; }
+        entry = { target: 'amount', value: '' };
+        doneAt = Date.now();
+        setPhase('done');
+        renderStudent(); renderDisplay();
         setStatus($('tx-status'), 'ok', done.sid + '번 · ' + fmt(done.amount) + 'P ' + KIND_LABEL[done.mode] + ' 완료' + (res.duplicate ? ' (이미 처리된 거래 확인)' : ''), '새 잔액 ' + fmt(res.balance) + 'P');
-        go.disabled = true; go.textContent = '거래 완료';
-        $('tx-next').hidden = false;
         receiptTimer = setTimeout(function () { resetStudent(true); }, 12000);
         return;
       }
-      if (UNSURE[res.code]) {                            // 처리 여부를 모름 → 같은 거래번호로만 다시 확인(서버가 중복을 막음)
-        showRetry('결과를 확인하지 못했어요. 아래 버튼을 다시 눌러 주세요. 두 번 처리되지 않아요.');
-        return;
-      }
-      clearPending();                                    // 확실히 처리되지 않음 → 다시 입력 가능
+      if (UNSURE[res.code]) { setPhase('retry'); return; } // 처리 여부를 모름 → 같은 거래번호로만 다시 확인
+      pending = null; store(KEY_PENDING, null);           // 확실히 처리되지 않음 → 다시 입력 가능
+      setPhase('ready');
       if (res.code === 'insufficient') {
         if (selected) { selected.balance = res.balance; renderStudent(); }
         setStatus($('tx-status'), 'warn', res.message, '현재 잔액 ' + fmt(res.balance) + 'P');
-        $('tx-amount').focus();
       } else if (res.code === 'bad-code') {
         forceLogout(res.message);
       } else {
@@ -643,6 +692,16 @@
         setStatus($('tx-status'), 'warn', res.message || '처리하지 못했어요.');
       }
     });
+  }
+
+  function resetStudent(autoScan) {
+    if (pending || !session || session.type !== 'booth') return;
+    clearTimeout(receiptTimer);
+    selected = null; entry = { target: 'amount', value: '' };
+    phase = 'ready'; setPhase('ready');
+    renderAll();
+    hide($('tx-status'));
+    if (autoScan) scanStart();
   }
 
   $('tx-discard').addEventListener('click', function () {
@@ -653,10 +712,13 @@
       setTimeout(function () { discardArmed = false; b.textContent = '선생님 확인 후: 이 거래 버리기'; }, 5000);
       return;
     }
-    clearPending();
+    discardArmed = false; b.textContent = '선생님 확인 후: 이 거래 버리기';
+    pending = null; store(KEY_PENDING, null);
+    setPhase('ready');
     setStatus($('tx-status'), 'warn', '확인하지 못한 거래를 버렸어요. 최근 거래 목록에서 처리 여부를 확인해 주세요.');
   });
 
+  /* 최근 거래·취소 */
   function txRow(t, withCancel) {
     var li = el('li');
     var cancelled = t.state !== 'done';
@@ -681,7 +743,7 @@
     list.forEach(function (t) { ul.appendChild(txRow(t, true)); });
   }
   function armCancel(btn, t) {
-    if (busy) return;
+    if (busy || pending) return;
     if (cancelArmed !== t.id) {
       cancelArmed = t.id;
       $$('#booth-recent button.confirm').forEach(function (b) { b.classList.remove('confirm'); b.textContent = '취소'; });
@@ -696,7 +758,7 @@
       if (res.recent) renderRecent(res.recent);
       if (res.ok) {
         if (selected && selected.sid === res.studentId) { selected.balance = res.balance; renderStudent(); }
-        setStatus($('tx-status'), 'ok', t.sid + '번 학생의 ' + fmt(t.amount) + 'P ' + KIND_LABEL[t.kind] + ' 거래를 취소했어요.' + (res.alreadyCancelled ? ' (이미 취소된 거래)' : ''), '현재 잔액 ' + fmt(res.balance) + 'P');
+        setStatus($('tx-status'), 'ok', t.sid + '번 ' + fmt(t.amount) + 'P ' + KIND_LABEL[t.kind] + ' 거래를 취소했어요.' + (res.alreadyCancelled ? ' (이미 취소된 거래)' : ''), '현재 잔액 ' + fmt(res.balance) + 'P');
       } else {
         btn.disabled = false; btn.textContent = '취소';
         setStatus($('tx-status'), 'warn', UNSURE[res.code] ? '인터넷 연결이 불안정해요. 취소를 다시 눌러 주세요. 두 번 취소되지 않아요.' : res.message,
@@ -706,82 +768,65 @@
     });
     if (!sent) { btn.disabled = false; btn.textContent = '취소'; }
   }
-  function forceLogout(message) {
-    boothScanner.stop(); kioskScanner.stop();
-    store(KEY_CODE, null); store(KEY_PENDING, null); pending = null; session = null;
-    show('view-login');
-    setStatus($('login-status'), 'warn', message || '다시 로그인해 주세요.');
-  }
 
-  /* ───────── 잔액 확인 ───────── */
-  var kioskTimer = null;
-  var kioskScanner = new Scanner($('kiosk-video'), $('kiosk-reader'), function (text) {
-    $('kiosk-scan').textContent = 'QR 스캔 시작';
+  /* ───────── 잔액 확인 (QR 전용) ───────── */
+  var kioskTimer = null, kioskTick = null;
+  var kioskScanner = new Scanner('kiosk', function (text) {
     var qr = parseQr(text);
-    if (!qr) { setStatus($('kiosk-status'), 'warn', '학생 포인트 QR이 아니에요. 다시 스캔해 주세요.'); setTimeout(kioskScanStart, 1500); return; }
+    if (!qr) { setStatus($('kiosk-status'), 'warn', '학생 포인트 QR이 아니에요. 다시 비춰 주세요.'); setTimeout(kioskScanStart, 1500); return; }
     kioskLookup(qr.sid, qr.token);
   });
   function openKiosk() { show('view-kiosk'); kioskReset(); }
   function kioskScanStart() {
     if (!session || session.type !== 'kiosk' || !$('kiosk-result').hidden) return;
-    var btn = $('kiosk-scan');
-    btn.disabled = true; btn.textContent = '카메라 여는 중...';
-    kioskScanner.start(facing).then(function () { btn.disabled = false; btn.textContent = '스캔 멈추기'; })
-      .catch(function (e) { btn.disabled = false; btn.textContent = 'QR 스캔 시작'; setStatus($('kiosk-status'), 'warn', cameraError(e)); });
+    $('kiosk-state').textContent = 'QR을 카메라에 비춰 주세요';
+    kioskScanner.start().catch(function (e) { $('kiosk-state').textContent = '카메라 오류'; setStatus($('kiosk-status'), 'warn', cameraError(e)); });
   }
   function kioskReset() {
-    clearTimeout(kioskTimer);
-    $('kiosk-result').hidden = true; $('kiosk-input').hidden = false;
-    $('kiosk-sid').value = ''; hide($('kiosk-status'));
-    if (lastKioskVia === 'qr') kioskScanStart();
+    clearTimeout(kioskTimer); clearInterval(kioskTick);
+    $('kiosk-result').hidden = true; $('kiosk-idle-pane').hidden = false;
+    hide($('kiosk-status'));
+    kioskScanStart();
   }
-  var lastKioskVia = 'qr';
-  $('kiosk-scan').addEventListener('click', function () {
-    if (kioskScanner.running) { kioskScanner.stop(); this.textContent = 'QR 스캔 시작'; lastKioskVia = 'manual'; return; }
-    lastKioskVia = 'qr'; kioskScanStart();
-  });
+  $('kiosk-scan').addEventListener('click', function () { $('kiosk-result').hidden = true; $('kiosk-idle-pane').hidden = false; kioskReset(); });
   $('kiosk-flip').addEventListener('click', function () {
     facing = facing === 'user' ? 'environment' : 'user'; store(KEY_FACING, facing);
     if (kioskScanner.running) kioskScanStart();
   });
-  $('kiosk-manual').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var sid = $('kiosk-sid').value.replace(/\D/g, '');
-    if (!/^\d{3,6}$/.test(sid)) { setStatus($('kiosk-status'), 'warn', '학번을 숫자로 정확히 입력해 주세요.'); return; }
-    kioskScanner.stop(); $('kiosk-scan').textContent = 'QR 스캔 시작';
-    kioskLookup(sid, null);
-  });
   $('kiosk-again').addEventListener('click', kioskReset);
   function kioskLookup(sid, token) {
-    lastKioskVia = token ? 'qr' : 'manual';
-    var go = $('kiosk-go');
-    go.disabled = true;
+    $('kiosk-state').textContent = sid + '번 확인 중';
     setStatus($('kiosk-status'), 'wait', sid + '번 학생 잔액을 확인하고 있어요...');
     var sent = call('qp_balance', { p_code: session.code, p_student_id: sid, p_qr_token: token }, function (res) {
-      go.disabled = false;
       if (!res.ok) {
-        setStatus($('kiosk-status'), 'warn', UNSURE[res.code] ? '인터넷 연결이 불안정해요. 다시 시도해 주세요.' : (res.message || '확인하지 못했어요.'));
+        setStatus($('kiosk-status'), 'warn', UNSURE[res.code] ? '인터넷 연결이 불안정해요. 다시 비춰 주세요.' : (res.message || '확인하지 못했어요.'));
         if (res.code === 'bad-code') { forceLogout(res.message); return; }
-        if (token) setTimeout(kioskScanStart, 2500);
+        setTimeout(kioskScanStart, 2500);
         return;
       }
       hide($('kiosk-status'));
+      kioskScanner.stop('잔액을 보여주는 중이에요');
+      $('kiosk-state').textContent = '확인 완료';
       $('kiosk-res-sid').textContent = res.studentId + '번 학생';
       var num = $('kiosk-res-num'); num.textContent = fmt(res.balance); num.appendChild(el('small', null, 'P'));
       var ul = $('kiosk-res-list'); ul.innerHTML = '';
       if (!res.today.length) ul.appendChild(el('li', 'empty', '오늘 거래 내역이 없어요.'));
       res.today.forEach(function (t) { ul.appendChild(txRow(t, false)); });
-      $('kiosk-input').hidden = true; $('kiosk-result').hidden = false;
+      $('kiosk-idle-pane').hidden = true; $('kiosk-result').hidden = false;
+      var left = 20;
+      $('kiosk-count').textContent = '(' + left + ')';
+      clearInterval(kioskTick);
+      kioskTick = setInterval(function () { left -= 1; $('kiosk-count').textContent = '(' + Math.max(0, left) + ')'; }, 1000);
       kioskTimer = setTimeout(kioskReset, 20000);
     });
-    if (!sent) go.disabled = false;
+    if (!sent) setTimeout(kioskScanStart, 800);
   }
 
   /* ───────── 시작 ───────── */
   if (!configured) { show('view-setup'); return; }
   var saved = load(KEY_CODE);
   if (saved) { $('login-code').value = saved; show('view-login'); login(saved); }
-  else { show('view-login'); $('login-code').focus(); }
+  else { show('view-login'); }
 })();
 </script>
 </body>
