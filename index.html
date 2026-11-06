@@ -83,6 +83,10 @@
   .status strong.big { display: block; font-size: clamp(20px, 3.4vh, 26px); color: var(--ink); }
 
   /* 가운데: 처리 */
+  .mode-fixed { flex: 0 0 auto; border-radius: 12px; min-height: clamp(38px, 6vh, 48px); display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-weight: 900; font-size: 17px; color: #fff; }
+  .mode-fixed.spend { background: var(--red); box-shadow: 0 2px 0 var(--red-dark); }
+  .mode-fixed.earn { background: var(--green); box-shadow: 0 2px 0 var(--green-dark); }
   .segmented { flex: 0 0 auto; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; background: #eee9d5; border-radius: 12px; gap: 4px; }
   .segmented button { border: 0; background: transparent; color: #616a77; border-radius: 9px; padding: 0; min-height: clamp(38px, 6vh, 48px); font-weight: 900; font-size: 16px; }
   .segmented button.selected { background: var(--red); color: #fff; box-shadow: 0 2px 0 var(--red-dark); }
@@ -213,6 +217,7 @@
 
         <section class="panel">
           <h2 class="panel-title">02 포인트 처리</h2>
+          <div class="mode-fixed" id="mode-fixed" hidden></div>
           <div class="segmented" id="mode-seg">
             <button type="button" data-mode="spend" class="selected">포인트 사용</button>
             <button type="button" data-mode="earn">포인트 적립</button>
@@ -417,7 +422,7 @@
     ['view-setup', 'view-login', 'view-booth', 'view-kiosk'].forEach(function (v) { $(v).hidden = v !== view; });
     var inApp = view === 'view-booth' || view === 'view-kiosk';
     $('logout').hidden = !inApp; $('booth-chip').hidden = !inApp; $('top-mascot').hidden = view !== 'view-booth';
-    if (session) $('booth-chip').textContent = session.name;
+    if (session) $('booth-chip').textContent = session.name + (session.mode === 'earn' ? ' · 적립 부스' : session.mode === 'spend' ? ' · 사용 부스' : '');
   }
   function login(code) {
     var btn = $('login-btn');
@@ -474,7 +479,17 @@
   var receiptTimer = null, cancelArmed = null, cancelTimer = null, discardArmed = false, doneAt = 0;
   var boothScanner = new Scanner('booth', onBoothQr);
 
+  function boothFixed() { return !!session && (session.mode === 'earn' || session.mode === 'spend'); }
+  function applyBoothMode() {
+    var fixed = boothFixed();
+    if (fixed) mode = session.mode;
+    $('mode-seg').hidden = fixed;
+    var mf = $('mode-fixed');
+    mf.hidden = !fixed;
+    if (fixed) { mf.className = 'mode-fixed ' + mode; mf.textContent = mode === 'earn' ? '적립 부스 · 포인트 적립만 해요' : '사용 부스 · 포인트 사용만 해요'; }
+  }
   function openBooth(recent) {
+    applyBoothMode();
     show('view-booth');
     renderRecent(recent);
     var saved = load(KEY_PENDING);
@@ -500,7 +515,7 @@
     box.className = 'student';
     var left = el('div');
     left.appendChild(el('div', 'sid', selected.sid + '번 학생'));
-    left.appendChild(el('span', 'badge' + (selected.via === 'manual' ? ' manual' : ''), selected.via === 'qr' ? 'QR 확인됨' : '학번 입력 · 스티커 번호 확인'));
+    left.appendChild(el('span', 'badge' + (selected.via === 'manual' ? ' manual' : ''), selected.via === 'qr' ? 'QR 확인됨' : '학번 입력 · 명찰 번호 확인'));
     var right = el('div', 'bal', '보유 포인트');
     right.appendChild(el('strong', null, selected.balance == null ? '확인 중' : fmt(selected.balance) + 'P'));
     box.appendChild(left); box.appendChild(right);
@@ -516,7 +531,7 @@
     var d = $('display'), lbl = $('display-lbl'), val = $('display-val');
     var isSid = entry.target === 'sid';
     d.classList.toggle('sid', isSid);
-    lbl.textContent = isSid ? '학번 입력 (스티커 번호 확인)' : '처리할 포인트';
+    lbl.textContent = isSid ? '학번 입력 (명찰 번호 확인)' : '처리할 포인트';
     val.classList.toggle('placeholder', !entry.value);
     val.textContent = isSid ? (entry.value || '____') : (entry.value ? fmt(entry.value) : '0') + ' P';
   }
@@ -621,7 +636,7 @@
   });
   $$('#mode-seg button').forEach(function (b) {
     b.addEventListener('click', function () {
-      if (pending || phase === 'sending') return;
+      if (pending || phase === 'sending' || boothFixed()) return;
       mode = b.dataset.mode; store(KEY_MODE, mode);
       renderMode(); renderGo();
     });
@@ -650,7 +665,7 @@
     var amount = Number(entry.value);
     if (!amount) { setStatus($('tx-status'), 'warn', '숫자 버튼으로 포인트를 입력해 주세요.'); return; }
     if (mode === 'spend' && selected.balance != null && amount > selected.balance) {
-      setStatus($('tx-status'), 'warn', '잔액보다 많이 사용할 수 없어요.', '현재 잔액 ' + fmt(selected.balance) + 'P'); return;
+      setStatus($('tx-status'), 'warn', '잔액이 부족해요. 적립 부스에서 먼저 적립하고 오라고 안내해 주세요.', '현재 잔액 ' + fmt(selected.balance) + 'P'); return;
     }
     pending = { code: session.code, sid: selected.sid, token: selected.token, mode: mode, amount: amount, opId: newId() };
     store(KEY_PENDING, pending);                         // 새로고침해도 같은 거래번호로 이어서 확인
@@ -684,7 +699,7 @@
       setPhase('ready');
       if (res.code === 'insufficient') {
         if (selected) { selected.balance = res.balance; renderStudent(); }
-        setStatus($('tx-status'), 'warn', res.message, '현재 잔액 ' + fmt(res.balance) + 'P');
+        setStatus($('tx-status'), 'warn', '잔액이 부족해요. 적립 부스에서 먼저 적립하고 오라고 안내해 주세요.', '현재 잔액 ' + fmt(res.balance) + 'P');
       } else if (res.code === 'bad-code') {
         forceLogout(res.message);
       } else {
