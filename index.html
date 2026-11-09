@@ -659,7 +659,7 @@
       if (entry.target !== 'amount') entry = { target: 'amount', value: '' };
       var v = Number(entry.value || 0);
       if (b.dataset.bc === 'base') { if (!v) v = 20; }
-      else { v = v ? v + 10 : 30; if (v > 100) v = 100; }   // 교환권만 눌러도 기본 20점이 함께 들어가요
+      else { v = v ? v + 10 : 30; if (v > 100000) v = 100000; }   // 교환권만 눌러도 기본 20점이 함께 들어가요
       entry.value = String(v);
       renderDisplay(); renderGo();
     });
