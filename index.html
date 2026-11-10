@@ -493,7 +493,7 @@
   function isBc() { return !!session && session.name === '방송교육 적립'; }
   // 아나바다(B15)와 포인트 환전(B07)은 금액이 달라서 +5/+10/+20을 그대로 써요
   function preset() {
-    if (!session || isBc() || session.code === 'B07-1100' || session.code === 'B15-3425') return 0;
+    if (!session || isBc() || session.code === 'B07-1100' || session.code === 'B15-3425' || session.code === 'B04-2420') return 0;
     return session.mode === 'earn' ? 20 : session.mode === 'spend' ? 40 : 0;
   }
   function boothFixed() { return !!session && (session.mode === 'earn' || session.mode === 'spend'); }
@@ -507,6 +507,8 @@
     var bc = isBc();
     var pr = preset();
     $('quick').hidden = bc || pr > 0; $('quick-bc').hidden = !bc; $('quick-one').hidden = !pr;
+    var adds = session && session.code === 'B04-2420' ? [10, 20, 30] : [5, 10, 20]; // 질문 부스는 +10/+20/+30
+    $$('#quick button').forEach(function (b, i) { b.dataset.add = adds[i]; b.textContent = '+' + adds[i]; });
     if (pr) $('quick-one-btn').textContent = mode === 'earn' ? '활동 1회 +20' : '이용 1회 40P';
     if (bc) mf.textContent = '방송교육 적립 · 한 학생당 딱 한 번';
   }
