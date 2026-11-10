@@ -98,6 +98,8 @@
   .display .val { font-size: clamp(28px, 5.4vh, 40px); font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: 1px; }
   .display .val.placeholder { color: #b5bcc8; }
   .quick { flex: 0 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .quick-one { flex: 0 0 auto; display: grid; }
+  .quick-one button { border: 2px solid #e3b823; background: #ffd84d; border-radius: 12px; min-height: clamp(52px, 8vh, 64px); font-weight: 900; font-size: clamp(19px, 2.9vh, 23px); color: #253459; }
   .quick-bc { flex: 0 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .quick-bc button { border: 2px solid #e3b823; background: var(--soft-yellow); border-radius: 12px; min-height: clamp(52px, 8vh, 64px); font-weight: 900; font-size: clamp(17px, 2.6vh, 21px); }
   .quick-bc button.on { background: #ffd84d; border-color: #c99a00; }
@@ -232,6 +234,7 @@
             <button type="button" data-add="10">+10</button>
             <button type="button" data-add="20">+20</button>
           </div>
+          <div class="quick-one" id="quick-one" hidden><button type="button" id="quick-one-btn">활동 1회 +20</button></div>
           <div class="quick-bc" id="quick-bc" hidden>
             <button type="button" data-bc="base">기본 포인트 +20</button>
             <button type="button" data-bc="vou">교환권 +10</button>
@@ -488,6 +491,11 @@
   var boothScanner = new Scanner('booth', onBoothQr);
 
   function isBc() { return !!session && session.name === '방송교육 적립'; }
+  // 아나바다(B15)와 포인트 환전(B07)은 금액이 달라서 +5/+10/+20을 그대로 써요
+  function preset() {
+    if (!session || isBc() || session.code === 'B07-1100' || session.code === 'B15-3425') return 0;
+    return session.mode === 'earn' ? 20 : session.mode === 'spend' ? 40 : 0;
+  }
   function boothFixed() { return !!session && (session.mode === 'earn' || session.mode === 'spend'); }
   function applyBoothMode() {
     var fixed = boothFixed();
@@ -497,7 +505,9 @@
     mf.hidden = !fixed;
     if (fixed) { mf.className = 'mode-fixed ' + mode; mf.textContent = mode === 'earn' ? '적립 부스 · 포인트 적립만 해요' : '사용 부스 · 포인트 사용만 해요'; }
     var bc = isBc();
-    $('quick').hidden = bc; $('quick-bc').hidden = !bc;
+    var pr = preset();
+    $('quick').hidden = bc || pr > 0; $('quick-bc').hidden = !bc; $('quick-one').hidden = !pr;
+    if (pr) $('quick-one-btn').textContent = mode === 'earn' ? '활동 1회 +20' : '이용 1회 40P';
     if (bc) mf.textContent = '방송교육 적립 · 한 학생당 딱 한 번';
   }
   function openBooth(recent) {
@@ -549,6 +559,8 @@
       lbl.textContent = v ? '기본 20' + (v > 20 ? ' + 교환권 ' + ((v - 20) / 10) + '장' : '') : '기본 포인트를 눌러요';
       var bb = $$('#quick-bc button')[0]; bb.classList.toggle('on', v >= 20); bb.textContent = v >= 20 ? '기본 포인트 ✓' : '기본 포인트 +20';
     }
+    var pr = preset();
+    if (!isSid && pr && entry.value && Number(entry.value) % pr === 0) lbl.textContent = '처리할 포인트 · ' + (mode === 'earn' ? '활동 ' : '이용 ') + (Number(entry.value) / pr) + '회';
     val.classList.toggle('placeholder', !entry.value);
     val.textContent = isSid ? (entry.value || '____') : (entry.value ? fmt(entry.value) : '0') + ' P';
   }
@@ -566,7 +578,7 @@
   function setPhase(p, message) {
     phase = p;
     var locked = p === 'sending' || p === 'retry';
-    $$('#mode-seg button, #quick button, #quick-bc button, #keypad button, #booth-scan, #booth-flip, #booth-manual').forEach(function (b) { b.disabled = locked; });
+    $$('#mode-seg button, #quick button, #quick-one button, #quick-bc button, #keypad button, #booth-scan, #booth-flip, #booth-manual').forEach(function (b) { b.disabled = locked; });
     $('tx-discard').hidden = p !== 'retry';
     if (p === 'retry') setStatus($('tx-status'), 'wait', message || '결과를 확인하지 못했어요. 아래 버튼을 다시 눌러 주세요. 두 번 처리되지 않아요.');
     renderGo();
@@ -627,6 +639,7 @@
     if (pending || phase === 'sending') return;
     if (isBc() && entry.target === 'amount' && k !== 'C' && k !== 'B') return; // 방송교육: 숫자로 점수 입력 막기
     if (isBc() && entry.target === 'amount' && k === 'B') { if (phase === 'done') return; var bv = Number(entry.value || 0); entry.value = bv > 20 ? String(bv - 10) : ''; renderDisplay(); renderGo(); return; }
+    if (preset() && entry.target === 'amount' && k === 'B' && phase !== 'done' && entry.value && Number(entry.value) % preset() === 0) { var pv = Number(entry.value) - preset(); entry.value = pv ? String(pv) : ''; renderDisplay(); renderGo(); return; } // 1회 단위로 빼기
     if (phase === 'done') { // 거래 완료 후 숫자를 누르면 같은 학생에게 새 거래 입력
       if (!/^[0-9]$/.test(k)) return;
       clearTimeout(receiptTimer); phase = 'ready'; entry = { target: 'amount', value: '' };
@@ -652,6 +665,13 @@
       entry.value = String(Math.min(100000, Number(entry.value || 0) + Number(b.dataset.add)));
       renderDisplay(); renderGo();
     });
+  });
+  $('quick-one-btn').addEventListener('click', function () {
+    var pr = preset(); if (!pr || pending || phase === 'sending') return;
+    if (phase === 'done') { clearTimeout(receiptTimer); phase = 'ready'; entry = { target: 'amount', value: '' }; }
+    if (entry.target !== 'amount') entry = { target: 'amount', value: '' };
+    entry.value = String(Math.min(100000, Number(entry.value || 0) + pr));
+    renderDisplay(); renderGo();
   });
   $$('#quick-bc button').forEach(function (b) {
     b.addEventListener('click', function () {
